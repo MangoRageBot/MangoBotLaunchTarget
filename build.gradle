@@ -52,7 +52,11 @@ def getLatestGitVersion() {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
+    maven {
+        url = "https://maven.mangorage.org/releases/"
+    }
 }
 
 dependencies {
@@ -64,10 +68,9 @@ test {
 }
 
 publishing {
-    publications.register("mangobotaddon", MavenPublication) {
+    publications.register("mangobot-publish", MavenPublication) {
         artifactId = 'mangobotlaunchtarget'
         artifact shadowJar
-        artifact sourcesJar
 
         pom {
             name = 'MangoBotCore'
