@@ -60,7 +60,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.mangorage:mangobotbootstrap:1.0.82-beta.1")
+    compileOnly("org.mangorage:mangobotbootstrap:1.0.83")
 }
 
 test {
