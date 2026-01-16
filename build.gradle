@@ -28,7 +28,7 @@ apply plugin: 'com.gradleup.shadow'
 
 
 group = 'org.mangorage'
-version = getLatestGitTag() + "." + getLatestGitVersion() + "-beta.1"
+version = getLatestGitTag() + "." + getLatestGitVersion()
 
 println("Version -> " + version)
 
@@ -70,7 +70,7 @@ test {
 publishing {
     publications.register("mangobot-publish", MavenPublication) {
         artifactId = 'mangobotlaunchtarget'
-        artifact shadowJar
+        artifact jar
 
         pom {
             name = 'MangoBotCore'

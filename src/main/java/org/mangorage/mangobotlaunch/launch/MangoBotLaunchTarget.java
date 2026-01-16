@@ -71,7 +71,7 @@ public final class MangoBotLaunchTarget implements ILaunchTarget {
     public void launch(ModuleLayer bootstrapLayer, ModuleLayer parent, String[] args) throws Throwable {
         final var pluginsPath = Path.of("plugins");
 
-        List<IDependencyLocator> dependencyLocators = ServiceLoader.load(IDependencyLocator.class, getClass().getClassLoader())
+        List<IDependencyLocator> dependencyLocators = ServiceLoader.load(bootstrapLayer, IDependencyLocator.class)
                 .stream()
                 .map(ServiceLoader.Provider::get)
                 .toList();
