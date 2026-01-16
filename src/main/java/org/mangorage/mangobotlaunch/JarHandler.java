@@ -26,6 +26,7 @@ public final class JarHandler {
                         .name();
             } catch (Exception ignore) {}
 
+
             // 1. Proper JPMS module
             if (jarFile.getEntry("module-info.class") != null) {
                 return new Result(
