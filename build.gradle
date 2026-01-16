@@ -62,3 +62,38 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+publishing {
+    publications.register("mangobotaddon", MavenPublication) {
+        artifactId = 'mangobotlaunchtarget'
+        artifact shadowJar
+        artifact sourcesJar
+
+        pom {
+            name = 'MangoBotCore'
+            description = 'The Launch Target for MangoBot'
+            url = 'https://github.com/MangoRageBot/MangoBot'
+            issueManagement {
+                system = 'github'
+                url = 'https://github.com/MangoRageBot/MangoBot/issues'
+            }
+            developers {
+                developer {
+                    id = 'mangorage'
+                    name = 'MangoRage'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url = "https://maven.mangorage.org/releases"
+
+            credentials {
+                username = System.getenv("MAVEN_USER")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
+        }
+    }
+}
