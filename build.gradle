@@ -1,0 +1,65 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        gradlePluginPortal()
+        maven {
+            url = uri("https://plugins.gradle.org/m2/")
+        }
+        maven {
+            url = 'https://repo.mattmalec.com/repository/releases'
+        }
+        maven {
+            url = "https://maven.mangorage.org/releases"
+        }
+    }
+
+    dependencies {
+        classpath 'com.gradleup.shadow:shadow-gradle-plugin:+'
+    }
+}
+
+plugins {
+    id 'java'
+}
+
+apply plugin: 'maven-publish'
+apply plugin: 'com.gradleup.shadow'
+
+
+group = 'org.mangorage'
+version = getLatestGitTag() + "." + getLatestGitVersion() + "-beta.1"
+
+println("Version -> " + version)
+
+def getLatestGitTag() {
+    def result = "git describe --long --tags".execute().text.trim()
+    if (result.empty) {
+        throw new RuntimeException("Failed to retrieve commit count")
+    } else {
+        return result.split("-")[0]
+    }
+}
+
+def getLatestGitVersion() {
+    def result = "git describe --long --tags".execute().text.trim()
+    if (result.empty) {
+        throw new RuntimeException("Failed to retrieve commit count")
+    } else {
+        def commitCount = result.split("-")[1].toInteger()
+        return commitCount;
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}
