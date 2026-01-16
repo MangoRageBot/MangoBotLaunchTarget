@@ -1,8 +1,8 @@
 module org.mangorage.mangobotlaunchtarget {
     requires org.mangorage.bootstrap;
 
-    opens org.mangorage.mangobotlaunch.launch;
-    opens org.mangorage.mangobotlaunch.util;
+    opens org.mangorage.mangobotlaunch.launch to org.mangorage.bootstrap;
+    opens org.mangorage.mangobotlaunch.util to org.mangorage.bootstrap;
 
     provides org.mangorage.bootstrap.api.launch.ILaunchTarget with org.mangorage.mangobotlaunch.launch.MangoBotLaunchTarget;
     provides org.mangorage.bootstrap.api.dependency.IDependencyLocator with org.mangorage.mangobotlaunch.launch.MangoBotDependencyLocator;
