@@ -224,6 +224,8 @@ public final class MangoLoaderImpl extends SecureClassLoader implements IMangoLo
     }
 
     private boolean isOpen(ModuleReference mref, String pn) {
+        if (pn.isEmpty()) return true; // Open if its well, root...
+
         ModuleDescriptor descriptor = mref.descriptor();
         if (descriptor.isOpen() || descriptor.isAutomatic()) return true;
         return descriptor.opens().stream().anyMatch(opens -> !opens.isQualified() && opens.source().equals(pn));
