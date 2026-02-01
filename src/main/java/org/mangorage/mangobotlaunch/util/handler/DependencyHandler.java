@@ -1,4 +1,4 @@
-package org.mangorage.mangobotlaunch;
+package org.mangorage.mangobotlaunch.util.handler;
 
 import org.mangorage.bootstrap.api.dependency.IDependency;
 import org.mangorage.bootstrap.api.util.GsonUtil;

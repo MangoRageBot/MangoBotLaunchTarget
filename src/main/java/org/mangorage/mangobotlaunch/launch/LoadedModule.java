@@ -3,6 +3,7 @@ package org.mangorage.mangobotlaunch.launch;
 import java.io.IOException;
 import java.lang.module.ModuleReader;
 import java.lang.module.ModuleReference;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.security.CodeSigner;
 import java.security.CodeSource;
@@ -11,17 +12,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public final class LoadedModule implements ModuleReader {
+public final class LoadedModule {
     private final List<LoadedModule> children = new ArrayList<>();
 
     private final ModuleReference moduleReference;
-    private final ModuleReader moduleReader;
     private final CodeSource codeSource;
 
-    LoadedModule(ModuleReference moduleReference) throws IOException {
+    LoadedModule(ModuleReference moduleReference) {
         this.moduleReference = moduleReference;
-        this.moduleReader = moduleReference.open();
-        this.codeSource = new CodeSource(moduleReference.location().get().toURL(), (CodeSigner[]) null);
+        try {
+            this.codeSource = new CodeSource(moduleReference.location().get().toURL(), (CodeSigner[]) null);
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     ModuleReference getModuleReference() {
@@ -29,7 +32,11 @@ public final class LoadedModule implements ModuleReader {
     }
 
     ModuleReader getModuleReader() {
-        return moduleReader;
+        try {
+            return moduleReference.open();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     CodeSource getCodeSource() {
@@ -44,7 +51,6 @@ public final class LoadedModule implements ModuleReader {
         return getModuleReference().descriptor().name();
     }
 
-    @Override
     public Optional<URI> find(String name) throws IOException {
         final var optional = getModuleReader().find(name);
         if (optional.isPresent()) return optional;
@@ -56,15 +62,5 @@ public final class LoadedModule implements ModuleReader {
         }
 
         return Optional.empty();
-    }
-
-    @Override
-    public Stream<String> list() throws IOException {
-        return Stream.empty();
-    }
-
-    @Override
-    public void close() throws IOException {
-
     }
 }

@@ -12,12 +12,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public final class ClassTransformers {
     private final Map<String, Class<?>> classes = new ConcurrentHashMap<>();
-    private final List<IClassTransformer> transformers = new CopyOnWriteArrayList<>(); // Transformer's
-    private final ClassLoader loader;
+    private final List<IClassTransformer> transformers = new CopyOnWriteArrayList<>();
 
-    ClassTransformers(ClassLoader loader) {
-        this.loader = loader;
-    }
+    ClassTransformers() {}
 
     void add(String name, Class<?> clz) {
         classes.put(name, clz);
@@ -31,7 +28,7 @@ public final class ClassTransformers {
         return transformers.isEmpty();
     }
 
-    byte[] transform(String name, byte[] classData) {;
+    byte[] transform(String name, byte[] classData) {
 
         AtomicReference<TransformResult> result = new AtomicReference<>(TransformerFlag.NO_REWRITE.of(classData));
         AtomicReference<IClassTransformer> _transformer = new AtomicReference<>();

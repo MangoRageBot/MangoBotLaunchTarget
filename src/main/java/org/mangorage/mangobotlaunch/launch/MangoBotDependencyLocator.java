@@ -2,7 +2,7 @@ package org.mangorage.mangobotlaunch.launch;
 
 import org.mangorage.bootstrap.api.dependency.IDependency;
 import org.mangorage.bootstrap.api.dependency.IDependencyLocator;
-import org.mangorage.mangobotlaunch.DependencyHandler;
+import org.mangorage.mangobotlaunch.util.handler.DependencyHandler;
 
 import java.nio.file.Path;
 import java.util.List;

@@ -23,52 +23,13 @@ import java.util.Set;
 
 public final class MangoBotLaunchTarget implements ILaunchTarget {
 
-    /**
-     * Deletes the target directory if it exists, then copies all files from the list into it.
-     *
-     * @param files      List of files to copy
-     * @param targetDir  Directory to copy files into
-     * @throws IOException if anything goes wrong
-     */
-    public static void copyFilesToDirectory(List<Path> files, Path targetDir) throws IOException {
-        // Delete directory if it exists
-        if (Files.exists(targetDir)) {
-            deleteDirectoryRecursively(targetDir);
-        }
-
-        // Recreate the empty directory
-        Files.createDirectories(targetDir);
-
-        // Copy each file
-        for (Path file : files) {
-            if (!Files.isRegularFile(file)) continue; // skip garbage
-            Path dest = targetDir.resolve(file.getFileName());
-            Files.copy(file, dest, StandardCopyOption.REPLACE_EXISTING);
-        }
-    }
-
-    private static void deleteDirectoryRecursively(Path dir) throws IOException {
-        if (!Files.exists(dir)) return;
-
-        // Walk the directory bottom-up and delete everything
-        Files.walk(dir)
-                .sorted(Comparator.reverseOrder()) // delete children first
-                .forEach(path -> {
-                    try {
-                        Files.delete(path);
-                    } catch (IOException e) {
-                        throw new RuntimeException("Failed to delete " + path, e);
-                    }
-                });
-    }
-
     @Override
     public String getId() {
         return "mangobot";
     }
 
     @Override
-    public void launch(ModuleLayer bootstrapLayer, ModuleLayer parent, String[] args) throws Throwable {
+    public void launch(ModuleLayer bootstrapLayer, ModuleLayer parent, String[] args) {
         final var pluginsPath = Path.of("plugins");
 
         List<IDependencyLocator> dependencyLocators = ServiceLoader.load(bootstrapLayer, IDependencyLocator.class)
