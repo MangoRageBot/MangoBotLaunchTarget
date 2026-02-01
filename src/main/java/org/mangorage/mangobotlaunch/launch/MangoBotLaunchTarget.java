@@ -5,13 +5,9 @@ import org.mangorage.bootstrap.api.dependency.IDependencyLocator;
 import org.mangorage.bootstrap.api.launch.ILaunchTarget;
 import org.mangorage.bootstrap.api.launch.ILaunchTargetEntrypoint;
 import org.mangorage.mangobotlaunch.util.Util;
-
-import java.io.IOException;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleFinder;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;

@@ -3,7 +3,6 @@ package org.mangorage.mangobotlaunch.util;
 import java.io.File;
 import java.lang.module.ModuleFinder;
 import java.lang.module.ModuleReference;
-import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;

@@ -12,11 +12,10 @@ import java.lang.module.ModuleReference;
 import java.lang.module.ResolvedModule;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.security.SecureClassLoader;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class MangoLoaderImpl extends SecureClassLoader implements IMangoLoader {
+public final class MangoLoaderImpl extends ClassLoader implements IMangoLoader {
 
     static {
         ClassLoader.registerAsParallelCapable();
@@ -40,11 +39,6 @@ public final class MangoLoaderImpl extends SecureClassLoader implements IMangoLo
     }
 
     void load(final ModuleLayer moduleLayer, final ModuleLayer.Controller controller) {
-        loadModuleConfiguration(moduleLayer, controller);
-        loadTransformers();
-    }
-
-    private void loadModuleConfiguration(final ModuleLayer moduleLayer, final ModuleLayer.Controller controller) {
         var moduleLayerImpl = new ModuleLayerImpl(moduleLayer, controller);
         ServiceLoader.load(IModuleConfigurator.class)
                 .stream()
@@ -58,9 +52,7 @@ public final class MangoLoaderImpl extends SecureClassLoader implements IMangoLo
                                     .forEach(module::addChild)
                     );
                 });
-    }
 
-    private void loadTransformers() {
         ServiceLoader.load(IClassTransformer.class)
                 .stream()
                 .map(ServiceLoader.Provider::get)
@@ -108,7 +100,7 @@ public final class MangoLoaderImpl extends SecureClassLoader implements IMangoLo
         return Collections.enumeration(findResourcesAsList(name));
     }
 
-    private List<URL> findResourcesAsList(String name) throws IOException {
+    private List<URL> findResourcesAsList(String name){
         String pn = toPackageName(name);
         LoadedModule module = localPackageToModule.get(pn);
         if (module != null) {
@@ -198,11 +190,11 @@ public final class MangoLoaderImpl extends SecureClassLoader implements IMangoLo
             byte[] modifiedClassBytes = transformers.transform(cn, classBytes);
 
             if (modifiedClassBytes != null) {
-                Class<?> clz = defineClass(cn, modifiedClassBytes, 0, modifiedClassBytes.length, loadedModule.getCodeSource());
+                Class<?> clz = defineClass(cn, modifiedClassBytes, 0, modifiedClassBytes.length);
                 transformers.add(cn, clz);
                 return clz;
             }
-            return defineClass(cn, classBytes, 0, classBytes.length, loadedModule.getCodeSource());
+            return defineClass(cn, classBytes, 0, classBytes.length);
         } catch (IOException ioe) {
             return null;
         }

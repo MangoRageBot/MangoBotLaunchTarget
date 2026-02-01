@@ -3,28 +3,18 @@ package org.mangorage.mangobotlaunch.launch;
 import java.io.IOException;
 import java.lang.module.ModuleReader;
 import java.lang.module.ModuleReference;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.security.CodeSigner;
-import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 public final class LoadedModule {
     private final List<LoadedModule> children = new ArrayList<>();
 
     private final ModuleReference moduleReference;
-    private final CodeSource codeSource;
 
     LoadedModule(ModuleReference moduleReference) {
         this.moduleReference = moduleReference;
-        try {
-            this.codeSource = new CodeSource(moduleReference.location().get().toURL(), (CodeSigner[]) null);
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
     ModuleReference getModuleReference() {
@@ -37,10 +27,6 @@ public final class LoadedModule {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    CodeSource getCodeSource() {
-        return codeSource;
     }
 
     void addChild(LoadedModule module) {
