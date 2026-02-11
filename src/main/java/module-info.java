@@ -1,5 +1,6 @@
 module org.mangorage.mangobotlaunchtarget {
     requires org.mangorage.bootstrap;
+    requires java.logging;
 
     opens org.mangorage.mangobotlaunch.launch to org.mangorage.bootstrap;
     opens org.mangorage.mangobotlaunch.util to org.mangorage.bootstrap;

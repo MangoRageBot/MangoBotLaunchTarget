@@ -3,6 +3,7 @@ package org.mangorage.mangobotlaunch.launch;
 import org.mangorage.bootstrap.api.loader.IMangoLoader;
 import org.mangorage.bootstrap.api.module.IModuleConfigurator;
 import org.mangorage.bootstrap.api.transformer.IClassTransformer;
+import org.mangorage.bootstrap.api.transformer.IClassTransformerHistory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -153,6 +154,11 @@ public final class MangoLoaderImpl extends ClassLoader implements IMangoLoader {
     }
 
     @Override
+    public IClassTransformerHistory getTransformerHistory() {
+        return transformers;
+    }
+
+    @Override
     public byte[] getClassBytes(String cn) {
         LoadedModule loadedModule = findLoadedModule(cn);
         return loadedModule != null ? getClassBytesFromModule(loadedModule, cn) : getClassBytesFromParent(cn);
@@ -190,9 +196,7 @@ public final class MangoLoaderImpl extends ClassLoader implements IMangoLoader {
             byte[] modifiedClassBytes = transformers.transform(cn, classBytes);
 
             if (modifiedClassBytes != null) {
-                Class<?> clz = defineClass(cn, modifiedClassBytes, 0, modifiedClassBytes.length);
-                transformers.add(cn, clz);
-                return clz;
+                return defineClass(cn, modifiedClassBytes, 0, modifiedClassBytes.length);
             }
             return defineClass(cn, classBytes, 0, classBytes.length);
         } catch (IOException ioe) {
