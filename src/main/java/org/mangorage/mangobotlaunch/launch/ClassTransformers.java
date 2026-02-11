@@ -33,7 +33,7 @@ public final class ClassTransformers implements IClassTransformerHistory {
 
     byte[] transform(String name, byte[] classData) {
         if (name.contains("MangoLogger")) {
-            LOGGER.get().debug("Skipping transformation for {0} to avoid potential logging issues", name);
+            ILoggerFactory.getDefault().getProvider("default").getLogger(ClassTransformers.class).info("Skipping transformation for {0} to avoid potential logging issues", name);
             return null;
         }
 
