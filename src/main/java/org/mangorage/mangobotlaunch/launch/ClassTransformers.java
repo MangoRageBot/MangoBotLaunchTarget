@@ -32,52 +32,54 @@ public final class ClassTransformers implements IClassTransformerHistory {
     }
 
     byte[] transform(String name, byte[] classData) {
-        if (name.contains("MangoLogger")) {
-            ILoggerFactory.getDefault().getProvider("default").getLogger(ClassTransformers.class).info("Skipping transformation for {0} to avoid potential logging issues", name);
-            return null;
+        if (name == null || name.contains("MangoLogger") || name.contains("slf4j")) {
+            System.out.printf("Skipping transformation for %s to avoid potential logging issues%n", name);
+            return classData;
         }
 
+
+        final var logger = LOGGER.get(); // single reference at the top
+
         if (transformers.isEmpty()) {
-            LOGGER.get().info("No transformers registered for class: {0}", name);
-            return null;
+            logger.info("No transformers registered for class: {0}", name);
+            return classData;
         }
 
         ITransformerResultHistory previous = null;
-        List<ITransformerResultHistory> historyList = DEBUG_CLASS_TRANSFORMING ? transformerHistoryCache.computeIfAbsent(name, k -> new CopyOnWriteArrayList<>()) : null;
+        List<ITransformerResultHistory> historyList = DEBUG_CLASS_TRANSFORMING
+                ? transformerHistoryCache.computeIfAbsent(name, k -> new CopyOnWriteArrayList<>())
+                : null;
 
         for (IClassTransformer transformer : transformers) {
-
             TransformResult result = transformer.transform(name, classData);
 
             if (DEBUG_CLASS_TRANSFORMING) {
-
-                // create and store the history entry
                 TransformerHistoryEntry entry = new TransformerHistoryEntry(
                         transformer.getClass(),
                         transformer.getName(),
                         result.flag(),
-                        classData,         // original data before this transformer
-                        result.classData(),  // result of this transformer
-                        previous             // previous history entry
+                        classData,
+                        result.classData(),
+                        previous
                 );
 
                 historyList.add(entry);
-                previous = entry; // update previous for the next iteration
+                previous = entry;
 
-                LOGGER.get().info("Transformer history recorded for {0} using {1}", new Object[]{name, transformer.getName()});
+                logger.info("Transformer history recorded for {0} using {1}",
+                        new Object[]{name, transformer.getName()});
             }
 
             if (result.flag() != TransformerFlag.NO_REWRITE) {
-                LOGGER.get().info("Class {0} transformed by {1}", new Object[]{name, transformer.getName()});
+                logger.info("Class {0} transformed by {1}", new Object[]{name, transformer.getName()});
                 return result.classData();
             }
-
-            // currentData remains the same if NO_REWRITE
         }
 
-        LOGGER.get().info("No transformation applied to class: {0}", name);
-        return null;
+        logger.info("No transformation applied to class: {0}", name);
+        return classData;
     }
+
 
 
     @Override
