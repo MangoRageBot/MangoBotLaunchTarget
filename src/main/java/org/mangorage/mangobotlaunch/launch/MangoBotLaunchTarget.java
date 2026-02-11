@@ -28,7 +28,7 @@ public final class MangoBotLaunchTarget implements ILaunchTarget {
     }
 
     @Override
-    public ModuleLayer launch(ModuleLayer bootstrapLayer, ModuleLayer parent, String[] args) {
+    public ModuleLayer setup(ModuleLayer bootstrapLayer, ModuleLayer parent, String[] args) {
         final var pluginsPath = Path.of("plugins");
 
         List<IDependencyLocator> dependencyLocators = ServiceLoader.load(bootstrapLayer, IDependencyLocator.class)
@@ -99,6 +99,12 @@ public final class MangoBotLaunchTarget implements ILaunchTarget {
 
         moduleCL.load(moduleLayer, moduleLayerController);
 
+        // Allow bootstrap to see the moduleLayer!
+        return moduleLayer;
+    }
+
+    @Override
+    public void launch(ModuleLayer moduleLayer, String[] args) {
         ServiceLoader.load(ILaunchTargetEntrypoint.class)
                 .stream()
                 .map(ServiceLoader.Provider::get)
@@ -106,8 +112,5 @@ public final class MangoBotLaunchTarget implements ILaunchTarget {
                 .findAny()
                 .orElseThrow(() -> new IllegalStateException("Unable to find entrypoint for mangobot launch target"))
                 .init(args);
-
-        // Allow bootstrap to see the moduleLayer!
-        return moduleLayer;
     }
 }
