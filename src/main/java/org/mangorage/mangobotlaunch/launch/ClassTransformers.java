@@ -18,7 +18,7 @@ public final class ClassTransformers implements IClassTransformerHistory {
     private static final Logger LOGGER = Logger.getLogger(ClassTransformers.class.getName());
     private static final boolean DEBUG_CLASS_TRANSFORMING = Boolean.getBoolean("DEBUG_CLASS_TRANSFORMING");
 
-    record TransformerHistoryEntry(Class<?> transformer, String transformerName, TransformerFlag transformerFlag, byte[] classData)
+    record TransformerHistoryEntry(Class<?> transformer, String transformerName, TransformerFlag transformerFlag, byte[] classData, byte[] transformerResult, ITransformerResultHistory previous)
             implements ITransformerResultHistory {}
 
     private final List<IClassTransformer> transformers = new CopyOnWriteArrayList<>();
@@ -37,13 +37,28 @@ public final class ClassTransformers implements IClassTransformerHistory {
             return null;
         }
 
+        ITransformerResultHistory previous = null;
+        List<ITransformerResultHistory> historyList = DEBUG_CLASS_TRANSFORMING ? transformerHistoryCache.computeIfAbsent(name, k -> new CopyOnWriteArrayList<>()) : null;
+
         for (IClassTransformer transformer : transformers) {
 
             TransformResult result = transformer.transform(name, classData);
 
-            if (DEBUG_CLASS_TRANSFORMING && transformerHistoryCache != null) {
-                transformerHistoryCache.computeIfAbsent(name, k -> new CopyOnWriteArrayList<>())
-                        .add(new TransformerHistoryEntry(transformer.getClass(), transformer.getName(), result.flag(), result.classData()));
+            if (DEBUG_CLASS_TRANSFORMING) {
+
+                // create and store the history entry
+                TransformerHistoryEntry entry = new TransformerHistoryEntry(
+                        transformer.getClass(),
+                        transformer.getName(),
+                        result.flag(),
+                        classData,         // original data before this transformer
+                        result.classData(),  // result of this transformer
+                        previous             // previous history entry
+                );
+
+                historyList.add(entry);
+                previous = entry; // update previous for the next iteration
+
                 LOGGER.log(Level.FINE, "Transformer history recorded for {0} using {1}", new Object[]{name, transformer.getName()});
             }
 
@@ -51,12 +66,14 @@ public final class ClassTransformers implements IClassTransformerHistory {
                 LOGGER.log(Level.INFO, "Class {0} transformed by {1}", new Object[]{name, transformer.getName()});
                 return result.classData();
             }
+
+            // currentData remains the same if NO_REWRITE
         }
 
         LOGGER.log(Level.FINE, "No transformation applied to class: {0}", name);
-
         return null;
     }
+
 
     @Override
     public List<ITransformerResultHistory> getHistory(String className) {
