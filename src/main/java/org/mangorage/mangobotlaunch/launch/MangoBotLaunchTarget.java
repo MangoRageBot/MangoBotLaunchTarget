@@ -4,6 +4,8 @@ import org.mangorage.bootstrap.api.dependency.IDependency;
 import org.mangorage.bootstrap.api.dependency.IDependencyLocator;
 import org.mangorage.bootstrap.api.launch.ILaunchTarget;
 import org.mangorage.bootstrap.api.launch.ILaunchTargetEntrypoint;
+import org.mangorage.bootstrap.api.logging.ILoggerFactory;
+import org.mangorage.bootstrap.api.logging.IMangoLogger;
 import org.mangorage.mangobotlaunch.util.Util;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleFinder;
@@ -18,6 +20,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 
 public final class MangoBotLaunchTarget implements ILaunchTarget {
+    private static final IMangoLogger LOGGER = ILoggerFactory.getDefault().getWrappedProvider("slf4j").getLogger(MangoBotLaunchTarget.class);
 
     @Override
     public String getId() {
@@ -25,7 +28,7 @@ public final class MangoBotLaunchTarget implements ILaunchTarget {
     }
 
     @Override
-    public void launch(ModuleLayer bootstrapLayer, ModuleLayer parent, String[] args) {
+    public ModuleLayer launch(ModuleLayer bootstrapLayer, ModuleLayer parent, String[] args) {
         final var pluginsPath = Path.of("plugins");
 
         List<IDependencyLocator> dependencyLocators = ServiceLoader.load(bootstrapLayer, IDependencyLocator.class)
@@ -57,19 +60,19 @@ public final class MangoBotLaunchTarget implements ILaunchTarget {
         moduleNames.addAll(Util.getModuleNames(pluginsPath));
         moduleNames.addAll(finalDependencies.keySet());
 
-        System.out.println("----------------------------------------------");
-        System.out.println("Module Info");
-        System.out.println("----------------------------------------------");
+        LOGGER.info("----------------------------------------------");
+        LOGGER.info("Module Info");
+        LOGGER.info("----------------------------------------------");
         moduleNames.forEach(name -> {
-            System.out.println("Module Name -> " + name);
+            LOGGER.info("Module Name -> " + name);
         });
-        System.out.println("----------------------------------------------");
-        System.out.println("Module -> Jar Info");
-        System.out.println("----------------------------------------------");
+        LOGGER.info("----------------------------------------------");
+        LOGGER.info("Module -> Jar Info");
+        LOGGER.info("----------------------------------------------");
         finalDependencies.forEach((module, result) -> {
-            System.out.println("Module -> " + module + " Jar -> " + result.resolveJar() + " Name -> " + result.getName() + " Origin -> " + result.getModuleNameOrigin());
+            LOGGER.info("Module -> " + module + " Jar -> " + result.resolveJar() + " Name -> " + result.getName() + " Origin -> " + result.getModuleNameOrigin());
         });
-        System.out.println("----------------------------------------------");
+        LOGGER.info("----------------------------------------------");
 
         final var moduleCfg = Configuration.resolve(
                 ModuleFinder.of(
@@ -103,5 +106,8 @@ public final class MangoBotLaunchTarget implements ILaunchTarget {
                 .findAny()
                 .orElseThrow(() -> new IllegalStateException("Unable to find entrypoint for mangobot launch target"))
                 .init(args);
+
+        // Allow bootstrap to see the moduleLayer!
+        return moduleLayer;
     }
 }

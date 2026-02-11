@@ -1,5 +1,8 @@
 package org.mangorage.mangobotlaunch.util;
 
+import org.mangorage.bootstrap.api.logging.ILoggerFactory;
+import org.mangorage.bootstrap.api.logging.IMangoLogger;
+
 import java.io.File;
 import java.lang.module.ModuleFinder;
 import java.lang.module.ModuleReference;
@@ -8,6 +11,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public final class Util {
+    private static final IMangoLogger LOGGER = ILoggerFactory.getDefault().getWrappedProvider("slf4j").getLogger(Util.class);
+
     public static Set<String> getModuleNames(Path folder) {
         final Set<String> moduleNames = new HashSet<>();
 
