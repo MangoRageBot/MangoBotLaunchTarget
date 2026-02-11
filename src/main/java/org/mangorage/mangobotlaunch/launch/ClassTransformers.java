@@ -41,7 +41,8 @@ public final class ClassTransformers implements IClassTransformerHistory {
         final var logger = LOGGER.get(); // single reference at the top
 
         if (transformers.isEmpty()) {
-            logger.info("No transformers registered for class: {}", name);
+            if (DEBUG_CLASS_TRANSFORMING)
+                logger.debug("No transformers registered for class: {}", name);
             return classData;
         }
 
@@ -66,7 +67,8 @@ public final class ClassTransformers implements IClassTransformerHistory {
                 historyList.add(entry);
                 previous = entry;
 
-                logger.info("Transformer history recorded for {} using {}", name, transformer.getName());
+                if (DEBUG_CLASS_TRANSFORMING)
+                    logger.debug("Transformer history recorded for {} using {}", name, transformer.getName());
             }
 
             if (result.flag() != TransformerFlag.NO_REWRITE) {
@@ -75,7 +77,8 @@ public final class ClassTransformers implements IClassTransformerHistory {
             }
         }
 
-        logger.info("No transformation applied to class: {}", name);
+        if (DEBUG_CLASS_TRANSFORMING)
+            logger.debug("No transformation applied to class: {}", name);
         return classData;
     }
 
