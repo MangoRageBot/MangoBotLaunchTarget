@@ -28,7 +28,7 @@ public final class ClassTransformers implements IClassTransformerHistory {
 
     void add(IClassTransformer transformer) {
         transformers.add(transformer);
-        LOGGER.get().info("Added transformer: {0}", transformer.getName());
+        LOGGER.get().info("Added transformer: {}", transformer.getName());
     }
 
     byte[] transform(String name, byte[] classData) {
@@ -41,7 +41,7 @@ public final class ClassTransformers implements IClassTransformerHistory {
         final var logger = LOGGER.get(); // single reference at the top
 
         if (transformers.isEmpty()) {
-            logger.info("No transformers registered for class: {0}", name);
+            logger.info("No transformers registered for class: {}", name);
             return classData;
         }
 
@@ -66,17 +66,16 @@ public final class ClassTransformers implements IClassTransformerHistory {
                 historyList.add(entry);
                 previous = entry;
 
-                logger.info("Transformer history recorded for {0} using {1}",
-                        new Object[]{name, transformer.getName()});
+                logger.info("Transformer history recorded for {} using {}", name, transformer.getName());
             }
 
             if (result.flag() != TransformerFlag.NO_REWRITE) {
-                logger.info("Class {0} transformed by {1}", new Object[]{name, transformer.getName()});
+                logger.info("Class {} transformed by {}", name, transformer.getName());
                 return result.classData();
             }
         }
 
-        logger.info("No transformation applied to class: {0}", name);
+        logger.info("No transformation applied to class: {}", name);
         return classData;
     }
 
