@@ -1,7 +1,7 @@
 package org.mangorage.mangobotlaunch.launch;
 
+import org.mangorage.bootstrap.api.logging.IDeferredMangoLogger;
 import org.mangorage.bootstrap.api.logging.ILoggerFactory;
-import org.mangorage.bootstrap.api.logging.IMangoLogger;
 import org.mangorage.bootstrap.api.transformer.IClassTransformer;
 import org.mangorage.bootstrap.api.transformer.IClassTransformerHistory;
 import org.mangorage.bootstrap.api.transformer.ITransformerResultHistory;
@@ -15,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class ClassTransformers implements IClassTransformerHistory {
 
-    private static final IMangoLogger LOGGER = ILoggerFactory.getDefault().getWrappedProvider("slf4j").getLogger(ClassTransformers.class);
+    private static final IDeferredMangoLogger LOGGER = ILoggerFactory.getDefault().getWrappedProvider("slf4j", ClassTransformers.class);
     private static final boolean DEBUG_CLASS_TRANSFORMING = Boolean.getBoolean("DEBUG_CLASS_TRANSFORMING");
 
     record TransformerHistoryEntry(Class<?> transformer, String transformerName, TransformerFlag transformerFlag, byte[] classData, byte[] transformerResult, ITransformerResultHistory previous)
@@ -28,12 +28,12 @@ public final class ClassTransformers implements IClassTransformerHistory {
 
     void add(IClassTransformer transformer) {
         transformers.add(transformer);
-        LOGGER.info("Added transformer: {0}", transformer.getName());
+        LOGGER.get().info("Added transformer: {0}", transformer.getName());
     }
 
     byte[] transform(String name, byte[] classData) {
         if (transformers.isEmpty()) {
-            LOGGER.info("No transformers registered for class: {0}", name);
+            LOGGER.get().info("No transformers registered for class: {0}", name);
             return null;
         }
 
@@ -59,18 +59,18 @@ public final class ClassTransformers implements IClassTransformerHistory {
                 historyList.add(entry);
                 previous = entry; // update previous for the next iteration
 
-                LOGGER.info("Transformer history recorded for {0} using {1}", new Object[]{name, transformer.getName()});
+                LOGGER.get().info("Transformer history recorded for {0} using {1}", new Object[]{name, transformer.getName()});
             }
 
             if (result.flag() != TransformerFlag.NO_REWRITE) {
-                LOGGER.info("Class {0} transformed by {1}", new Object[]{name, transformer.getName()});
+                LOGGER.get().info("Class {0} transformed by {1}", new Object[]{name, transformer.getName()});
                 return result.classData();
             }
 
             // currentData remains the same if NO_REWRITE
         }
 
-        LOGGER.info("No transformation applied to class: {0}", name);
+        LOGGER.get().info("No transformation applied to class: {0}", name);
         return null;
     }
 

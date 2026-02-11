@@ -4,8 +4,8 @@ import org.mangorage.bootstrap.api.dependency.IDependency;
 import org.mangorage.bootstrap.api.dependency.IDependencyLocator;
 import org.mangorage.bootstrap.api.launch.ILaunchTarget;
 import org.mangorage.bootstrap.api.launch.ILaunchTargetEntrypoint;
+import org.mangorage.bootstrap.api.logging.IDeferredMangoLogger;
 import org.mangorage.bootstrap.api.logging.ILoggerFactory;
-import org.mangorage.bootstrap.api.logging.IMangoLogger;
 import org.mangorage.mangobotlaunch.util.Util;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleFinder;
@@ -20,7 +20,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 
 public final class MangoBotLaunchTarget implements ILaunchTarget {
-    private static final IMangoLogger LOGGER = ILoggerFactory.getDefault().getWrappedProvider("slf4j").getLogger(MangoBotLaunchTarget.class);
+    private static final IDeferredMangoLogger LOGGER = ILoggerFactory.getDefault().getWrappedProvider("slf4j", MangoBotLaunchTarget.class);
 
     @Override
     public String getId() {
@@ -60,19 +60,19 @@ public final class MangoBotLaunchTarget implements ILaunchTarget {
         moduleNames.addAll(Util.getModuleNames(pluginsPath));
         moduleNames.addAll(finalDependencies.keySet());
 
-        LOGGER.info("----------------------------------------------");
-        LOGGER.info("Module Info");
-        LOGGER.info("----------------------------------------------");
+        LOGGER.get().info("----------------------------------------------");
+        LOGGER.get().info("Module Info");
+        LOGGER.get().info("----------------------------------------------");
         moduleNames.forEach(name -> {
-            LOGGER.info("Module Name -> " + name);
+            LOGGER.get().info("Module Name -> " + name);
         });
-        LOGGER.info("----------------------------------------------");
-        LOGGER.info("Module -> Jar Info");
-        LOGGER.info("----------------------------------------------");
+        LOGGER.get().info("----------------------------------------------");
+        LOGGER.get().info("Module -> Jar Info");
+        LOGGER.get().info("----------------------------------------------");
         finalDependencies.forEach((module, result) -> {
-            LOGGER.info("Module -> " + module + " Jar -> " + result.resolveJar() + " Name -> " + result.getName() + " Origin -> " + result.getModuleNameOrigin());
+            LOGGER.get().info("Module -> " + module + " Jar -> " + result.resolveJar() + " Name -> " + result.getName() + " Origin -> " + result.getModuleNameOrigin());
         });
-        LOGGER.info("----------------------------------------------");
+        LOGGER.get().info("----------------------------------------------");
 
         final var moduleCfg = Configuration.resolve(
                 ModuleFinder.of(
